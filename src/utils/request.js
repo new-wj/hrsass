@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
-// import { getToken } from '@/utils/auth'
+import { getTime } from '@/utils/auth'
+import router from '@/router'
 
 // create an axios instance
 const service = axios.create({
@@ -14,8 +15,16 @@ const service = axios.create({
 service.interceptors.request.use(
   function(config) {
     const token = store.getters.token
+
     if (token) {
-      config.headers.Authorization = 'Bearer ' + token
+      const time = getTime()
+      if (Date.now() - time >= 1200 * 1000) {
+        store.dispatch('user/exit')
+        Message.error('登录信息过期')
+        router.push('/login')
+      } else {
+        config.headers.Authorization = 'Bearer ' + token
+      }
     }
     return config
   },
@@ -37,6 +46,13 @@ service.interceptors.response.use(
     }
   },
   error => {
+    const { code } = error.response.data
+    if (code === 10002) {
+      store.dispatch('user/exit')
+      router.push('/login')
+    } else {
+      Message.error(error.message)
+    }
     return Promise.reject(error)
   }
 )

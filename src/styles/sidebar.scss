@@ -69,6 +69,15 @@
       width: 100% !important;
       a {
         li {
+          &.is-active {
+            background-color: #fff !important;
+            .svg-icon {
+              color: #43a7fe;
+            }
+            span {
+              color: #43a7fe;
+            }
+          }
           .svg-icon {
             color: #fff;
             font-size: 18px;

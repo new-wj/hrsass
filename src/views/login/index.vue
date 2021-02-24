@@ -130,9 +130,14 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(async valid => {
         if (!valid) return
-        await this.$store.dispatch('user/getToken', this.loginForm)
-        this.$message.success('登录成功')
-        this.$router.push('/')
+        this.loading = true
+        try {
+          await this.$store.dispatch('user/getToken', this.loginForm)
+          this.$message.success('登录成功')
+          this.$router.push('/')
+        } finally {
+          this.loading = false
+        }
       })
     }
   }

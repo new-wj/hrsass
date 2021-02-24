@@ -9,7 +9,6 @@ router.beforeEach(async(to, from, next) => {
   const token = store.getters.token
   if (token) {
     if (!store.getters.name) {
-      console.log(111)
       await store.dispatch('user/getUserInfo')
     }
     if (to.path === '/login') {
