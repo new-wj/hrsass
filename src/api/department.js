@@ -27,3 +27,21 @@ export function addDepartment(data) {
     data
   })
 }
+
+/**
+ * 根据id查询部门详情
+ * @param {String} id 部门id
+ */
+export function getDept(id) {
+  return axios({
+    url: `/company/department/${id}`
+  })
+}
+
+export function editDepartment(data) {
+  return axios({
+    method: 'PUT',
+    url: `/company/department/${data.id}`,
+    data
+  })
+}

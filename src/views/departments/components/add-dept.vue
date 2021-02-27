@@ -2,7 +2,7 @@
   <div class="add-dept">
     <el-dialog
       :visible="isDiaShow"
-      title="添加部门"
+      :title="showTitle"
       width="50%"
       @close="handleClose"
     >
@@ -47,7 +47,12 @@
 </template>
 
 <script>
-import { getDepartmentList, addDepartment } from '@/api/department'
+import {
+  getDepartmentList,
+  addDepartment,
+  getDept,
+  editDepartment
+} from '@/api/department'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   props: {
@@ -62,18 +67,29 @@ export default {
   },
   data() {
     const checkNameRepeat = async(rule, value, callback) => {
-      if (this.currentDept.name === value) {
-        return callback(new Error('部门名称不能与上级名称相同'))
+      const { depts } = await getDepartmentList()
+      let isRepeat = false
+      if (this.form.id) {
+        if (value === this.currentDept.name) {
+          return callback()
+        }
+        const arr = depts.filter(item => item.pid === this.currentDept.pid)
+        isRepeat = arr.some(item => item.name === value)
       } else {
-        const { depts } = await getDepartmentList()
         const arr = depts.filter(item => item.pid === this.currentDept.id)
-        arr.some(item => item.name === value)
-          ? callback(new Error(`同级部门下${value}已经存在了`))
-          : callback()
+        isRepeat = arr.some(item => item.name === value)
       }
+      isRepeat
+        ? callback(new Error(`同级部门下${value}已经存在了`))
+        : callback()
     }
     const checkCodeRepeat = async(rule, value, callback) => {
       const { depts } = await getDepartmentList()
+      if (this.form.id) {
+        if (this.currentDept.code === value) {
+          return callback()
+        }
+      }
       depts.some(item => item.code === value)
         ? callback(new Error('有相同的编码存在'))
         : callback()
@@ -112,13 +128,23 @@ export default {
       }
     }
   },
+  computed: {
+    showTitle() {
+      return this.form.id ? '编辑部门' : '新增部门'
+    }
+  },
   methods: {
     addDept() {
       this.$refs.addForm.validate(async valid => {
         if (valid) {
-          this.form.pid = this.currentDept.id
-          await addDepartment(this.form)
-          this.$message.success('新增部门成功')
+          if (this.form.id) {
+            await editDepartment(this.form)
+            this.$message.success('修改部门成功')
+          } else {
+            this.form.pid = this.currentDept.id
+            await addDepartment(this.form)
+            this.$message.success('新增部门成功')
+          }
           this.handleClose()
           this.$emit('getDepartments')
         } else {
@@ -129,10 +155,19 @@ export default {
     handleClose() {
       this.$emit('handleClose')
       this.$refs.addForm.resetFields()
+      this.form = {
+        name: '',
+        code: '',
+        manager: '',
+        introduce: ''
+      }
     },
     async getEmployees() {
       const res = await getEmployeeSimple()
       this.employees = res
+    },
+    async getDeptById(id) {
+      this.form = await getDept(id)
     }
   }
 }

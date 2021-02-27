@@ -17,12 +17,14 @@
             <tree-tools
               :tree-node="data"
               @addDepartment="addDepartment"
+              @editDepartment="editDepartment"
               @getDepartments="getDepartments"
             />
           </template>
         </el-tree>
       </el-card>
       <add-dept
+        ref="dialog"
         :is-dia-show="isDiaShow"
         :current-dept="currentDept"
         @handleClose="isDiaShow = false"
@@ -68,6 +70,11 @@ export default {
       this.currentDept = data
       this.isDiaShow = true
     },
+    editDepartment(data) {
+      this.currentDept = data
+      this.isDiaShow = true
+      this.$refs.dialog.getDeptById(data.id)
+    },
     async getDepartments() {
       this.isloading = true
       const res = await getDepartmentList()
@@ -83,5 +90,27 @@ export default {
 .tree-card {
   padding: 30px 140px;
   font-size: 14px;
+}
+::v-deep {
+  .el-col {
+    height: 30px;
+    line-height: 30px;
+  }
+  .el-icon-caret-right:before {
+    content: '\e723';
+    color: #000;
+  }
+  .el-tree-node__expand-icon.expanded {
+    transform: rotate(0deg);
+  }
+  .el-tree-node__expand-icon.expanded::before {
+    content: '\e722';
+    color: #000;
+  }
+
+  .el-tree-node__expand-icon.is-leaf::before {
+    content: '\e7a5';
+    color: #000;
+  }
 }
 </style>
