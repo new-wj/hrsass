@@ -23,6 +23,10 @@ export function getEmployeeList(page = 1, size = 10) {
   })
 }
 
+/**
+ * 添加员工
+ * @param {*} data
+ */
 export function addEmployee(data) {
   return axios({
     url: '/sys/user',
@@ -39,5 +43,17 @@ export function delEmployee(id) {
   return axios({
     method: 'DELETE',
     url: `/sys/user/${id}`
+  })
+}
+
+/**
+ * 导入表格
+ * @param {*} data
+ */
+export function importEmployee(data) {
+  return axios({
+    url: '/sys/user/batch',
+    method: 'post',
+    data
   })
 }

@@ -7,9 +7,13 @@
           <el-button
             type="warning"
             size="small"
-            @click="$router.push('/import')"
+            @click="$router.push('/import?type=employee')"
           >导入</el-button>
-          <el-button type="danger" size="small">导出</el-button>
+          <el-button
+            type="danger"
+            size="small"
+            @click="exportExcel"
+          >导出</el-button>
           <el-button
             type="primary"
             size="small"
@@ -81,6 +85,7 @@
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from './components/add-employee'
+import moment from 'moment'
 export default {
   name: 'Employees',
   components: {
@@ -127,6 +132,64 @@ export default {
       await delEmployee(id)
       this.getEmployeeList()
       this.$message.success('删除成功')
+    },
+    // 导出表格
+    exportExcel() {
+      const headers = {
+        手机号: 'mobile',
+        姓名: 'username',
+        入职日期: 'timeOfEntry',
+        聘用形式: 'formOfEmployment',
+        转正日期: 'correctionTime',
+        工号: 'workNumber',
+        部门: 'departmentName'
+      }
+      this.downloadLoading = true
+      // 异步导入的目的：提高性能，只要用到导出功能的时候，才会去加载导出的js
+      import('@/vendor/Export2Excel').then(async excel => {
+        const { rows } = await getEmployeeList(this.page, this.total)
+        const data = this.formatJson(headers, rows)
+        const multiHeader = [['姓名', '主要信息', '', '', '', '', '部门']]
+        const merges = ['A1:A2', 'B1:F1', 'G1:G2']
+        excel.export_json_to_excel({
+          // 表头
+          header: Object.keys(headers),
+          // 数据
+          data,
+          // 文件名
+          filename: '员工资料表',
+          multiHeader,
+          merges,
+          // 自动宽度
+          autoWidth: true,
+          // 后缀名
+          bookType: 'xlsx'
+        })
+        this.downloadLoading = false
+      })
+    },
+
+    formatJson(headers, rows) {
+      return rows.map(item => {
+        return Object.keys(headers).map(key => {
+          if (
+            headers[key] === 'timeOfEntry' ||
+            headers[key] === 'correctionTime'
+          ) {
+            if (item[headers[key]] === null) {
+              return item[headers[key]]
+            } else {
+              return moment(item[headers[key]]).format('YYYY-MM-DD')
+            }
+          } else if (headers[key] === 'formOfEmployment') {
+            const obj = EmployeeEnum.hireType.find(
+              obj => obj.id === item[headers[key]]
+            )
+            return obj ? obj.value : '未知'
+          }
+          return item[headers[key]]
+        })
+      })
     }
   }
 }

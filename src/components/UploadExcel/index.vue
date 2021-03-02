@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <div class="upload-excel">
+    <div class="btn-upload">
+      <el-button
+        :loading="loading"
+        style="margin-left:16px;"
+        size="mini"
+        type="primary"
+        @click="handleUpload"
+      >
+        点击上传
+      </el-button>
+      <a href="./excel/aa.xlsx" download="员工导入模板.xlsx">点击下载模板</a>
+    </div>
     <input
       ref="excel-upload-input"
       class="excel-upload-input"
@@ -13,16 +25,8 @@
       @dragover="handleDragover"
       @dragenter="handleDragover"
     >
-      Drop excel file here or
-      <el-button
-        :loading="loading"
-        style="margin-left:16px;"
-        size="mini"
-        type="primary"
-        @click="handleUpload"
-      >
-        Browse
-      </el-button>
+      <i class="el-icon-upload" />
+      <span>将文件拖到此处</span>
     </div>
   </div>
 </template>
@@ -135,21 +139,31 @@ export default {
 }
 </script>
 
-<style scoped>
-.excel-upload-input {
-  display: none;
-  z-index: -9999;
-}
-.drop {
-  border: 2px dashed #bbb;
-  width: 600px;
-  height: 160px;
-  line-height: 160px;
-  margin: 0 auto;
-  font-size: 24px;
-  border-radius: 5px;
-  text-align: center;
-  color: #bbb;
-  position: relative;
+<style scoped lang="scss">
+.upload-excel {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+  .excel-upload-input {
+    display: none;
+    z-index: -9999;
+  }
+  .btn-upload,
+  .drop {
+    border: 1px dashed #bbb;
+    width: 350px;
+    height: 160px;
+    text-align: center;
+    line-height: 160px;
+  }
+  .drop {
+    padding-top: 20px;
+    line-height: 80px;
+    color: #bbb;
+    i {
+      font-size: 60px;
+      display: block;
+    }
+  }
 }
 </style>
