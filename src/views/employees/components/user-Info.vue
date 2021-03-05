@@ -57,6 +57,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
+            <image-upload ref="upload" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -91,6 +92,7 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <image-upload ref="myStaffPhoto" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -470,18 +472,40 @@ export default {
   methods: {
     async getUserDetail() {
       this.userInfo = await getUserDetail(this.userId)
+      if (this.userInfo.staffPhoto) {
+        this.$refs.upload.fileList = [
+          { url: this.userInfo.staffPhoto, upload: true }
+        ]
+      }
     },
     async saveUser() {
-      await saveUserDetailById(this.userInfo)
+      const file = this.$refs.upload.fileList[0]
+      if (!file) {
+        return this.$message.error('请上传用户头像')
+      }
+      if (file.status !== 'success') {
+        return this.$message.error('请等待文件上传完成')
+      }
+      await saveUserDetailById({
+        ...this.userInfo,
+        staffPhoto: file.url
+      })
+      if (this.userId === this.$store.getters.id) {
+        this.$store.dispatch('user/getUserInfo')
+      }
       this.$message.success('修改用户信息成功')
     },
     async getPersonalDetail() {
       this.formData = await getPersonalDetail(this.userId)
+      if (this.formData.staffPhoto) {
+        this.$refs.myStaffPhoto.fileList = [{ url: this.formData.staffPhoto }]
+      }
     },
     async savePersonal() {
       await updatePersonal({
         ...this.formData,
-        id: this.userId
+        id: this.userId,
+        staffPhoto: this.$refs.myStaffPhoto.fileList[0].url
       })
       this.$message.success('保存成功')
     }

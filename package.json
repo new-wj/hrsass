@@ -24,8 +24,10 @@
     "normalize.css": "7.0.0",
     "nprogress": "^0.2.0",
     "path-to-regexp": "2.4.0",
-    "uuid": "^8.3.2",
+    "qrcode": "^1.4.4",
+    "uuid-v4": "^0.1.0",
     "vue": "2.6.10",
+    "vue-print-nb": "^1.6.0",
     "vue-router": "3.0.6",
     "vuex": "3.1.0",
     "xlsx": "^0.16.9"

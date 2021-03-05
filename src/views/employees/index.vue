@@ -26,6 +26,17 @@
       <el-card>
         <el-table v-loading="loading" border :data="list">
           <el-table-column label="序号" sortable type="index" width="120" />
+          <el-table-column label="头像" align="center">
+            <template v-slot="{ row }">
+              <img
+                v-imgerror="defaultImg"
+                :src="row.staffPhoto"
+                style="border-radius: 50%; width: 100px; height: 100px; padding: 10px"
+                alt=""
+                @click="showQrCode(row.staffPhoto)"
+              >
+            </template>
+          </el-table-column>
           <el-table-column label="姓名" sortable prop="username" />
           <el-table-column label="工号" sortable prop="workNumber" />
           <el-table-column
@@ -81,6 +92,11 @@
         </el-row>
       </el-card>
       <add-employee :show-dialog.sync="showDialog" />
+      <el-dialog width="40%" title="二维码" :visible.sync="showCodeDialog">
+        <el-row type="flex" justify="center">
+          <canvas ref="myCanvas" />
+        </el-row>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -90,6 +106,7 @@ import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from './components/add-employee'
 import moment from 'moment'
+import QrCode from 'qrcode'
 export default {
   name: 'Employees',
   components: {
@@ -102,7 +119,9 @@ export default {
       pagesize: 10,
       total: 0,
       loading: false,
-      showDialog: false
+      showDialog: false,
+      showCodeDialog: false,
+      defaultImg: require('@/assets/common/bigUserHeader.png')
     }
   },
   created() {
@@ -194,6 +213,18 @@ export default {
           return item[headers[key]]
         })
       })
+    },
+    async showQrCode(staffPhoto) {
+      if (!staffPhoto) return
+      // 显示弹窗
+      this.showCodeDialog = true
+      // 把图片地址生成二维码
+      // console.log(staffPhoto)
+      // 参数1： canvas标签
+      // 参数2：具体的网址
+      // console.log(this.$refs.myCanvas)
+      await this.$nextTick()
+      QrCode.toCanvas(this.$refs.myCanvas, staffPhoto)
     }
   }
 }

@@ -31,7 +31,8 @@ const actions = {
     const photo = data.staffPhoto
     commit('setUserInfo', {
       ...res,
-      photo
+      photo,
+      username: data.username
     })
   },
   async exit({ commit }) {
