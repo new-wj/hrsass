@@ -113,3 +113,16 @@ export function updateJob(data) {
     data
   })
 }
+
+/**
+ * 给用户分配角色
+ * @param {*} data
+ * @returns
+ */
+export function assignRoles(data) {
+  return axios({
+    url: '/sys/user/assignRoles',
+    data,
+    method: 'put'
+  })
+}

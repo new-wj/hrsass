@@ -159,7 +159,6 @@ export default {
       } catch {
         return false
       }
-      console.log(1111)
       await addEmployee({
         ...this.form,
         departmentName: this.form.departmentName[

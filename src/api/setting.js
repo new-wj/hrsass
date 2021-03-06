@@ -64,3 +64,14 @@ export function getCompanyById(id) {
     url: `/company/${id}`
   })
 }
+
+/**
+ * 给角色分配权限
+ */
+export function assignPerm(data) {
+  return axios({
+    url: '/sys/role/assignPrem',
+    method: 'put',
+    data
+  })
+}

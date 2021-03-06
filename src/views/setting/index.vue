@@ -29,7 +29,11 @@
               <el-table-column align="center" label="描述" prop="description" />
               <el-table-column align="center" label="操作">
                 <template v-slot="{ row }">
-                  <el-button size="small" type="success">分配权限</el-button>
+                  <el-button
+                    size="small"
+                    type="success"
+                    @click="showAssign(row.id)"
+                  >分配权限</el-button>
                   <el-button
                     size="small"
                     type="primary"
@@ -136,6 +140,29 @@
           </el-dialog>
         </el-tabs>
       </el-card>
+      <!-- 分配权限的弹层 -->
+      <el-dialog
+        title="分配权限"
+        :visible="showAssignDialog"
+        @close="closeAssignDialog"
+      >
+        <el-tree
+          ref="tree"
+          v-loading="treeLoading"
+          :data="permissionData"
+          :props="{ label: 'name' }"
+          :default-expand-all="true"
+          :show-checkbox="true"
+          :check-strictly="false"
+          node-key="id"
+        />
+        <template #footer>
+          <div style="text-align: center;">
+            <el-button @click="closeAssignDialog">取消</el-button>
+            <el-button type="primary" @click="addAssign">确定</el-button>
+          </div>
+        </template>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -147,8 +174,11 @@ import {
   delRole,
   getRoleDetail,
   editRole,
-  getCompanyById
+  getCompanyById,
+  assignPerm
 } from '@/api/setting'
+import { getPermissionList } from '@/api/permisson'
+import { list2Tree } from '@/utils'
 import { mapState } from 'vuex'
 export default {
   name: 'Setting',
@@ -170,7 +200,11 @@ export default {
           { required: true, message: '请输入角色描述', trigger: 'blur' }
         ]
       },
-      companyForm: {}
+      companyForm: {},
+      showAssignDialog: false,
+      roleId: '',
+      permissionData: [],
+      treeLoading: false
     }
   },
   computed: {
@@ -248,6 +282,28 @@ export default {
     async getCompanyInfo() {
       const res = await getCompanyById(this.userInfo.companyId)
       this.companyForm = res
+    },
+    closeAssignDialog() {
+      this.showAssignDialog = false
+      this.roleId = ''
+    },
+    async showAssign(id) {
+      this.treeLoading = true
+      this.showAssignDialog = true
+      this.roleId = id
+      const res = await getPermissionList()
+      this.permissionData = list2Tree(res, '0')
+      const msg = await getRoleDetail(this.roleId)
+      this.$refs.tree.setCheckedKeys(msg.permIds)
+      this.treeLoading = false
+    },
+    async addAssign() {
+      await assignPerm({
+        id: this.roleId,
+        permIds: this.$refs.tree.getCheckedKeys()
+      })
+      this.$message.success('分配成功')
+      this.showAssignDialog = false
     }
   }
 }

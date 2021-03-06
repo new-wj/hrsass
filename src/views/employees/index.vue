@@ -70,7 +70,11 @@
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="editRole(row.id)"
+              >角色</el-button>
               <el-button
                 type="text"
                 size="small"
@@ -92,6 +96,7 @@
         </el-row>
       </el-card>
       <add-employee :show-dialog.sync="showDialog" />
+      <assign-role :show-role-dialog.sync="showRoleDialog" :user-id="userId" />
       <el-dialog width="40%" title="二维码" :visible.sync="showCodeDialog">
         <el-row type="flex" justify="center">
           <canvas ref="myCanvas" />
@@ -105,12 +110,14 @@
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from './components/add-employee'
+import AssignRole from './components/assign-role'
 import moment from 'moment'
 import QrCode from 'qrcode'
 export default {
   name: 'Employees',
   components: {
-    AddEmployee
+    AddEmployee,
+    AssignRole
   },
   data() {
     return {
@@ -121,6 +128,8 @@ export default {
       loading: false,
       showDialog: false,
       showCodeDialog: false,
+      showRoleDialog: false,
+      userId: '',
       defaultImg: require('@/assets/common/bigUserHeader.png')
     }
   },
@@ -225,6 +234,10 @@ export default {
       // console.log(this.$refs.myCanvas)
       await this.$nextTick()
       QrCode.toCanvas(this.$refs.myCanvas, staffPhoto)
+    },
+    editRole(id) {
+      this.showRoleDialog = true
+      this.userId = id
     }
   }
 }
