@@ -9,7 +9,17 @@ router.beforeEach(async(to, from, next) => {
   const token = store.getters.token
   if (token) {
     if (!store.getters.name) {
-      await store.dispatch('user/getUserInfo')
+      const { roles } = await store.dispatch('user/getUserInfo')
+      const otherRoutes = await store.dispatch(
+        'permission/filterRoutes',
+        roles.menus
+      )
+      router.addRoutes([
+        ...otherRoutes,
+        { path: '*', redirect: '/404', hidden: true }
+      ])
+      next({ ...to, replace: true })
+      return
     }
     if (to.path === '/login') {
       next('/')

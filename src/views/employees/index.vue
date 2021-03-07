@@ -5,16 +5,19 @@
         <template #left>共166条记录</template>
         <template #right>
           <el-button
+            v-if="checkPermission('EMPLOYEE-IMPORT')"
             type="warning"
             size="small"
             @click="$router.push('/import?type=employee')"
           >导入</el-button>
           <el-button
+            v-if="checkPermission('EMPLOYEE-EXPORT')"
             type="danger"
             size="small"
             @click="exportExcel"
           >导出</el-button>
           <el-button
+            v-if="checkPermission('EMPLOYEE-ADD')"
             type="primary"
             size="small"
             icon="el-icon-plus"
@@ -113,12 +116,14 @@ import AddEmployee from './components/add-employee'
 import AssignRole from './components/assign-role'
 import moment from 'moment'
 import QrCode from 'qrcode'
+import permission from '@/mixins/permission'
 export default {
   name: 'Employees',
   components: {
     AddEmployee,
     AssignRole
   },
+  mixins: [permission],
   data() {
     return {
       list: [],

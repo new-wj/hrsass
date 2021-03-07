@@ -153,7 +153,7 @@
           :props="{ label: 'name' }"
           :default-expand-all="true"
           :show-checkbox="true"
-          :check-strictly="false"
+          :check-strictly="true"
           node-key="id"
         />
         <template #footer>

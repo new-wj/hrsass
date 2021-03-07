@@ -1,5 +1,6 @@
 import { getUserInfo, login, getUserDetail } from '@/api/user'
 import { setToken, getToken, removeToken, setTime } from '@/utils/auth'
+import { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
@@ -29,14 +30,18 @@ const actions = {
     const res = await getUserInfo()
     const data = await getUserDetail(res.userId)
     const photo = data.staffPhoto
-    commit('setUserInfo', {
+    const UserInfo = {
       ...res,
       photo,
       username: data.username
-    })
+    }
+    commit('setUserInfo', UserInfo)
+    return UserInfo
   },
   async exit({ commit }) {
     commit('exit')
+    resetRouter()
+    commit('permission/addRoutes', [], { root: true })
   }
 }
 
